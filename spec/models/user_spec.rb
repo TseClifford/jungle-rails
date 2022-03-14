@@ -7,7 +7,7 @@ RSpec.describe User, type: :model do
         User.new(
           first_name: 'John',
           last_name: 'Smith',
-          email: 'JohnSmith@gmail.com',
+          email: 'johnsmith@gmail.com',
           password: 'password',
           password_confirmation: 'password',
         )
@@ -20,7 +20,7 @@ RSpec.describe User, type: :model do
         User.new(
           first_name: nil,
           last_name: 'Smith',
-          email: 'JohnSmith@gmail.com',
+          email: 'johnsmith@gmail.com',
           password: 'password',
           password_confirmation: 'password',
         )
@@ -34,7 +34,7 @@ RSpec.describe User, type: :model do
         User.new(
           first_name: 'John',
           last_name: 'Smith',
-          email: 'JohnSmith@gmail.com',
+          email: 'johnsmith@gmail.com',
           password: 'password',
           password_confirmation: 'password',
         )
@@ -47,7 +47,7 @@ RSpec.describe User, type: :model do
         User.new(
           first_name: 'John',
           last_name: nil,
-          email: 'JohnSmith@gmail.com',
+          email: 'johnsmith@gmail.com',
           password: 'password',
           password_confirmation: 'password',
         )
@@ -61,7 +61,7 @@ RSpec.describe User, type: :model do
         User.new(
           first_name: 'John',
           last_name: 'Smith',
-          email: 'JohnSmith@gmail.com',
+          email: 'johnsmith@gmail.com',
           password: 'password',
           password_confirmation: 'password',
         )
@@ -88,7 +88,7 @@ RSpec.describe User, type: :model do
         User.new(
           first_name: 'John',
           last_name: 'Smith',
-          email: 'JohnSmith@gmail.com',
+          email: 'johnsmith@gmail.com',
           password: 'password',
           password_confirmation: 'password',
         )
@@ -101,7 +101,7 @@ RSpec.describe User, type: :model do
         User.new(
           first_name: 'John',
           last_name: 'Smith',
-          email: 'JohnSmith@gmail.com',
+          email: 'johnsmith@gmail.com',
           password: 'password',
           password_confirmation: 'password1',
         )
@@ -117,7 +117,7 @@ RSpec.describe User, type: :model do
         User.new(
           first_name: 'John',
           last_name: 'Smith',
-          email: 'JohnSmith@gmail.com',
+          email: 'johnsmith@gmail.com',
           password: 'pass',
           password_confirmation: 'pass',
         )
@@ -133,7 +133,7 @@ RSpec.describe User, type: :model do
         User.new(
           first_name: 'John',
           last_name: 'Smith',
-          email: 'JohnSmith@gmail.com',
+          email: 'johnsmith@gmail.com',
           password: 'password',
           password_confirmation: 'password',
         )
@@ -151,6 +151,61 @@ RSpec.describe User, type: :model do
       @user2.save
       expect(@user2.valid?).to be false
       expect(@user2.errors.messages[:email]).to include 'has already been taken'
+    end
+  end
+
+  describe '.authenticate_with_credentials' do
+    it 'should login user if credentials are valid' do
+      @user =
+        User.new(
+          first_name: 'Bob',
+          last_name: 'Smith',
+          email: 'bobsmith@gmail.com',
+          password: 'password',
+          password_confirmation: 'password',
+        )
+      @user.save
+      expect(@user.valid?).to be true
+
+      userAuth = User.authenticate_with_credentials(@user.email, @user.password)
+      expect(userAuth.id).to be @user.id
+    end
+
+    it 'should not login user if credentials are invalid' do
+      @user =
+        User.new(
+          first_name: 'Bob',
+          last_name: 'Smith',
+          email: 'bobsmith@gmail.com',
+          password: 'password',
+          password_confirmation: 'password',
+        )
+      @user.save
+      expect(@user.valid?).to be true
+
+      userAuth =
+        User.authenticate_with_credentials(@user.email, 'wrongpassword')
+      expect(userAuth).to be nil
+    end
+
+    it 'should login user if credentials are valid with whitespace and wrongcase email' do
+      @user =
+        User.new(
+          first_name: 'Rob',
+          last_name: 'Smith',
+          email: 'robsmith@gmail.com',
+          password: 'password',
+          password_confirmation: 'password',
+        )
+      @user.save
+      expect(@user.valid?).to be true
+
+      userAuth =
+        User.authenticate_with_credentials(
+          '  robSMITH@gmail.com ',
+          @user.password,
+        )
+      expect(userAuth.id).to be @user.id
     end
   end
 end
